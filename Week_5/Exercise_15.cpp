@@ -1,77 +1,78 @@
-#include<iostream>
-#include <chrono>
 #include <iostream>
 
 using namespace std;
-using namespace std::chrono;
 
-class Date {
+class Date
+{
 private:
-    year y;
-    month m;
-    day d;
+    int day;
+    int month;
+    int year;
 
 public:
-    // Constructor
-    Date(year y, month m, day d) : y(y), m(m), d(d) {}
-
-    // Public getter methods
-    year getYear() const {
-        return y;
+    Date()
+    {
+        day = month = 1;
+        year = 1970;
     }
 
-    month getMonth() const {
-        return m;
+    Date(int d, int m, int y)
+    {
+        day = d;
+        month = m;
+        year = y;
     }
 
-    day getDay() const {
-        return d;
+    int getDay() const { return day; }
+    int getMonth() const { return month; }
+    int getYear() const { return year; }
+
+    void setDate(int d, int m, int y)
+    {
+        day = d;
+        month = m;
+        year = y;
     }
 
-    // Operator overloads
-    bool operator==(const Date& other) const {
-        return y == other.y && m == other.m && d == other.d;
+    void print() const
+    {
+        cout << day << '.' << month << '.' << year << endl;
     }
 
-    bool operator!=(const Date& other) const {
-        return !(*this == other);
-    }
-
-    int operator-(const Date& other) const {
-        // Compute the difference in days between *this and other
-        days diff = sys_days{y / m / d} - sys_days{other.y / other.m / other.d};
-        return diff.count();
-    }
+    int dayInYear() const;
 };
 
-// Implement the public methods outside the class
-year Date::getYear() const {
-    return y;
+int Date::dayInYear() const
+{
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int result = day;
+
+    for (int i = 1; i < month; ++i)
+    {
+        result += daysInMonth[i];
+    }
+
+    if (month > 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)))
+    {
+        // Leap year: add one more day for February
+        ++result;
+    }
+
+    return result;
 }
 
-month Date::getMonth() const {
-    return m;
-}
+int main()
+{
+    const Date d1{1, 3, 2020}; // Leap year
+    const Date d2{2, 9, 2004}; // Non-leap year
 
-day Date::getDay() const {
-    return d;
-}
+    cout << "Date 1: ";
+    d1.print();
+    cout << "Day in the year (Leap year): " << d1.dayInYear() << endl;
 
-int main() {
-    Date d1{year{2023}, month{3}, day{23}};
-    cout << (d1 == d1) << endl; // Testing operator==
-    cout << (d1 != d1) << endl; // Testing operator!=
-
-    Date d2{year{2023}, month{3}, day{23}};
-    cout << (d1 == d2) << endl; // Testing operator==
-    cout << (d1 != d2) << endl; // Testing operator!=
-
-    cout << (d1 - d2) << endl; // Testing operator-
-
-    // Accessing individual components using public methods
-    cout << "Year: " << d1.getYear().count() << endl;
-    cout << "Month: " << static_cast<unsigned>(d1.getMonth()) << endl;
-    cout << "Day: " << static_cast<unsigned>(d1.getDay()) << endl;
+    cout << "\nDate 2: ";
+    d2.print();
+    cout << "Day in the year (Non-leap year): " << d2.dayInYear() << endl;
 
     return 0;
 }
